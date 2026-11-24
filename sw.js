@@ -1,7 +1,7 @@
 /* Do4You service worker. Caches the app shell so the app opens
    offline and installs on the phone home screen. Plain cache, no build step. */
 
-var CACHE = 'do4you-v1';
+var CACHE = 'do4you-v2';
 var FILES = [
   '.',
   'index.html',
@@ -23,8 +23,7 @@ var FILES = [
   'manifest.json',
   'icon-192.png',
   'icon-512.png',
-  'logo.svg',
-  'logo-icon.svg'
+  'logo.png'
 ];
 
 self.addEventListener('install', function (event) {
