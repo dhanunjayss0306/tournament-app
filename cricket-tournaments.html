@@ -35,7 +35,7 @@
         <a href="football-fixtures.html">Football Fixtures</a>
       </div>
     </details>
-    <details class="nav-drop" open>
+    <details class="nav-drop nav-tournaments" open>
       <summary>Tournaments</summary>
       <div class="nav-drop-menu">
         <a href="badminton-tournaments.html">Badminton Tournaments</a>
@@ -43,13 +43,20 @@
         <a href="football-tournaments.html">Football Tournaments</a>
       </div>
     </details>
-    <a href="create-tournament.html">Create Tournament</a>
+    <a href="create-tournament.html" class="nav-create">Create Tournament</a>
+    <a href="join-tournament.html" class="nav-player">Join Tournament</a>
+    <a href="my-team.html" class="nav-player">My Team</a>
     <a href="login.html" id="loginLink">Login</a>
     <span class="nav-user hidden" id="navUser"><span id="navUserText"></span> <button type="button" id="navLogout">Log out</button></span>
   </nav>
 </header>
 
 <main class="page" data-sport="cricket">
+  <div class="card hidden" id="roleGate">
+    <h3>Top Admin only</h3>
+    <p>Only the Top Admin can see tournaments and create them. You are logged in as Admin / Scorer. Fixtures and live matches are yours to score.</p>
+    <div class="btn-row"><a class="btn" href="index.html">Go to Home</a></div>
+  </div>
   <div class="page-head">
     <p class="eyebrow">Cricket</p>
     <h1>Tournaments.</h1>
@@ -61,11 +68,13 @@
       <h3>Vizag T20 Cup</h3>
       <p>Cricket, 8 teams, 11 players, 10 overs, League + Knockout</p>
       <p>Andhra University Ground, Entry Rs 100 per player</p>
+      <p>Tournament ID: <strong>AU26-CRI-01</strong>. Players join with this ID.</p>
     </div>
     <span class="tag tag-live">LIVE</span>
   </div>
   <div class="btn-row">
     <a class="btn" href="#register-cricket">Register, Rs 100</a>
+    <a class="btn btn-secondary" href="join-tournament.html">Join with Tournament ID</a>
     <a class="btn btn-secondary" href="cricket-live.html">View scorecard</a>
   </div>
 
@@ -87,6 +96,8 @@
       <p class="toast hidden reg-msg"></p>
     </form>
   </div>
+
+  <div id="exampleTeams"></div>
 
   <div id="savedTournaments" class="hidden"></div>
 

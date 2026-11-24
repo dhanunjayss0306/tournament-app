@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0071E3">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Do4You">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<title>Join Tournament, Do4You</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="index.html"><img src="logo.png" alt="" class="brand-mark"> Do4You</a>
+    <button class="menu-btn" id="menuBtn" type="button">Menu</button>
+  </div>
+  <nav class="site-nav" id="siteNav">
+    <a href="index.html">Home</a>
+    <a href="badminton-live.html">Badminton</a>
+    <a href="cricket-live.html">Cricket</a>
+    <a href="football-live.html">Football</a>
+    <details class="nav-drop">
+      <summary>Fixtures</summary>
+      <div class="nav-drop-menu">
+        <a href="badminton-fixtures.html">Badminton Fixtures</a>
+        <a href="cricket-fixtures.html">Cricket Fixtures</a>
+        <a href="football-fixtures.html">Football Fixtures</a>
+      </div>
+    </details>
+    <details class="nav-drop nav-tournaments">
+      <summary>Tournaments</summary>
+      <div class="nav-drop-menu">
+        <a href="badminton-tournaments.html">Badminton Tournaments</a>
+        <a href="cricket-tournaments.html">Cricket Tournaments</a>
+        <a href="football-tournaments.html">Football Tournaments</a>
+      </div>
+    </details>
+    <a href="create-tournament.html" class="nav-create">Create Tournament</a>
+    <a href="join-tournament.html" class="nav-player active">Join Tournament</a>
+    <a href="my-team.html" class="nav-player">My Team</a>
+    <a href="login.html" id="loginLink">Login</a>
+    <span class="nav-user hidden" id="navUser"><span id="navUserText"></span> <button type="button" id="navLogout">Log out</button></span>
+  </nav>
+</header>
+
+<main class="page">
+  <div class="page-head">
+    <p class="eyebrow">Player</p>
+    <h1>Join a tournament.</h1>
+    <p class="lead">Enter the Tournament ID shown on the tournament page. After you join, create your team on the My Team page.</p>
+  </div>
+
+  <div class="card hidden" id="joinGate">
+    <h3>Player only</h3>
+    <p>Only a Player can join a tournament. Please log in as a Player to continue.</p>
+    <a class="btn" href="login.html">Go to Login</a>
+  </div>
+
+  <form id="joinForm" class="card">
+    <label for="joinCode">Tournament ID</label>
+    <input type="text" id="joinCode" placeholder="Example: AU26-BDM-01" autocomplete="off">
+    <p class="help">The ID is shown on the tournament page, under the tournament name.</p>
+    <div class="btn-row">
+      <button class="btn" type="submit">Join tournament</button>
+    </div>
+    <p class="toast hidden" id="joinMsg"></p>
+  </form>
+
+  <div class="success-box hidden" id="joinDone">
+    <p id="joinDoneText"></p>
+    <div class="btn-row">
+      <a class="btn" id="joinTeamLink" href="my-team.html">Create my team</a>
+    </div>
+  </div>
+
+  <h2>Tournaments you joined</h2>
+  <div id="joinedList"></div>
+</main>
+
+<footer>Scores, tournaments, fixtures, registrations and winners are saved on this device. Live sync across phones needs a Firebase project, see sync.js.</footer>
+<script src="firebase-config.js"></script>
+<script src="sync.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -22,6 +22,14 @@
     }
   }
   function clone(obj) { return JSON.parse(JSON.stringify(obj)); }
+  /* Score animation: restart a short pop on a changed number. */
+  function bump(el, cls) {
+    if (!el) return;
+    var c = cls || 'score-pop';
+    el.classList.remove(c);
+    void el.offsetWidth;
+    el.classList.add(c);
+  }
   function esc(s) {
     return String(s === undefined || s === null ? '' : s)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -54,6 +62,7 @@
     return '';
   }
   function isTopAdmin() { return getRole() === 'top-admin'; }
+  function isScorer() { return getRole() === 'scorer'; }
   function isPlayer() { return getRole() === 'player'; }
 
   var navUser = document.getElementById('navUser');
@@ -82,6 +91,38 @@
   if (!isTopAdmin()) {
     var adminEls = document.querySelectorAll('.topadmin-only');
     for (var j = 0; j < adminEls.length; j++) adminEls[j].classList.add('hidden');
+  }
+  /* Navigation by role. Moderator: no Tournaments, no Create Tournament.
+     Player: no Create Tournament. Join and My Team links are for players only. */
+  if (isScorer()) {
+    var navT = document.querySelectorAll('.nav-tournaments');
+    for (var nt = 0; nt < navT.length; nt++) navT[nt].classList.add('hidden');
+  }
+  if (isScorer() || isPlayer()) {
+    var navC = document.querySelectorAll('.nav-create');
+    for (var nc = 0; nc < navC.length; nc++) navC[nc].classList.add('hidden');
+  }
+  if (!isPlayer()) {
+    var navP = document.querySelectorAll('.nav-player');
+    for (var np = 0; np < navP.length; np++) navP[np].classList.add('hidden');
+  }
+  /* Player-only sections (home page card). */
+  if (isPlayer()) {
+    var pOnly = document.querySelectorAll('.player-only');
+    for (var po = 0; po < pOnly.length; po++) pOnly[po].classList.remove('hidden');
+  }
+  /* Moderator gate on the tournaments pages: show the Top Admin only note, hide the rest. */
+  if (isScorer()) {
+    var gate = document.getElementById('roleGate');
+    if (gate) {
+      gate.classList.remove('hidden');
+      var mainEl = document.querySelector('main.page');
+      if (mainEl) {
+        for (var rg = 0; rg < mainEl.children.length; rg++) {
+          if (mainEl.children[rg] !== gate) mainEl.children[rg].classList.add('hidden');
+        }
+      }
+    }
   }
 
   /* ---------- Winners (announced by the Top Admin) ---------- */
@@ -127,6 +168,61 @@
     saveJSON('ta_results', res);
   }
 
+  /* ---------- Example tournaments (the one example per sport) ---------- */
+  var EXAMPLE_TOURNAMENTS = [
+    { code: 'AU26-BDM-01', name: 'AU Open Badminton 2026', sport: 'badminton', fee: '50' },
+    { code: 'AU26-CRI-01', name: 'Vizag T20 Cup', sport: 'cricket', fee: '100' },
+    { code: 'AU26-FTB-01', name: 'Vizag 5-a-side League', sport: 'football', fee: '100' }
+  ];
+  function findTournamentByCode(code) {
+    code = String(code || '').trim().toUpperCase();
+    if (!code) return null;
+    var saved = loadJSON('ta_tournaments', []);
+    for (var i = 0; i < saved.length; i++) {
+      if (saved[i] && String(saved[i].code || '').toUpperCase() === code) return saved[i];
+    }
+    for (var j = 0; j < EXAMPLE_TOURNAMENTS.length; j++) {
+      if (EXAMPLE_TOURNAMENTS[j].code === code) return EXAMPLE_TOURNAMENTS[j];
+    }
+    return null;
+  }
+  function tournamentCodeForName(name) {
+    for (var i = 0; i < EXAMPLE_TOURNAMENTS.length; i++) {
+      if (EXAMPLE_TOURNAMENTS[i].name === name) return EXAMPLE_TOURNAMENTS[i].code;
+    }
+    var saved = loadJSON('ta_tournaments', []);
+    for (var j = 0; j < saved.length; j++) {
+      if (saved[j] && saved[j].name === name) return saved[j].code || '';
+    }
+    return '';
+  }
+
+  /* ---------- Joins (a player joins a tournament by its ID) ---------- */
+  function getJoins() { return loadJSON('ta_joins', []); }
+  function myJoins() {
+    var name = getUserName();
+    return getJoins().filter(function (j) { return !name || j.player === name; });
+  }
+  function hasJoined(code) {
+    var name = getUserName();
+    return getJoins().some(function (j) { return j.code === code && (!name || j.player === name); });
+  }
+
+  /* ---------- Teams (a player creates a team and adds player names) ---------- */
+  function getTeams() { return loadJSON('ta_teams', []); }
+  function teamsFor(code) {
+    return getTeams().filter(function (t) { return t.code === code; });
+  }
+  function teamsHtml(code) {
+    var teams = teamsFor(code);
+    if (!teams.length) return '<p class="meta">No teams yet. Players join with the Tournament ID and create their team on the My Team page.</p>';
+    var html = '<h3>Teams in this tournament</h3>';
+    teams.forEach(function (t) {
+      html += '<div class="row-item"><div class="row-main"><h3>' + esc(t.teamName) + '</h3><p>' + esc(t.players.join(', ')) + '</p><p>' + t.players.length + ' player' + (t.players.length === 1 ? '' : 's') + ', added by ' + esc(t.owner) + '</p></div></div>';
+    });
+    return html;
+  }
+
   /* ---------- Registrations ---------- */
   function getRegistrations() { return loadJSON('ta_registrations', []); }
   function registrationsFor(tournamentName) {
@@ -168,6 +264,7 @@
     var state = loadJSON('ta_bm', bmDefault());
     if (!state.score) state = bmDefault();
     state.history = state.history || [];
+    var prevScore = state.score.slice();
 
     function save() { saveJSON('ta_bm', state); }
     function snap() {
@@ -213,10 +310,11 @@
       render();
     }
 
-    function resetMatch() {
+    function restartMatch() {
       var mode = state.mode;
       state = bmDefault();
       state.mode = mode;
+      prevScore = [0, 0];
       clearWinner(BM_MATCH_ID);
       save();
       render();
@@ -234,7 +332,7 @@
     function setMode(mode) {
       if (state.mode === mode) return;
       state.mode = mode;
-      resetMatch();
+      restartMatch();
       document.getElementById('bmSinglesBtn').classList.toggle('on', mode === 'singles');
       document.getElementById('bmDoublesBtn').classList.toggle('on', mode === 'doubles');
       document.getElementById('bmModeLabel').textContent = mode === 'singles' ? 'Singles' : 'Doubles';
@@ -280,6 +378,9 @@
       document.getElementById('bmNameB').textContent = names[1];
       document.getElementById('bmScoreA').textContent = state.score[0];
       document.getElementById('bmScoreB').textContent = state.score[1];
+      if (state.score[0] !== prevScore[0]) bump(document.getElementById('bmScoreA'));
+      if (state.score[1] !== prevScore[1]) bump(document.getElementById('bmScoreB'));
+      prevScore = state.score.slice();
       document.getElementById('bmGamesA').textContent = 'Games won: ' + state.games[0];
       document.getElementById('bmGamesB').textContent = 'Games won: ' + state.games[1];
       document.getElementById('bmServeA').style.visibility = state.server === 0 ? 'visible' : 'hidden';
@@ -327,7 +428,6 @@
     document.getElementById('bmPlusA').addEventListener('click', function () { point(0); });
     document.getElementById('bmPlusB').addEventListener('click', function () { point(1); });
     document.getElementById('bmUndo').addEventListener('click', undo);
-    document.getElementById('bmReset').addEventListener('click', resetMatch);
     var finishBtn = document.getElementById('bmFinish');
     if (finishBtn) finishBtn.addEventListener('click', finishMatch);
     var annBtn = document.getElementById('bmAnnounceBtn');
@@ -370,6 +470,8 @@
     var state = loadJSON('ta_cr', crDefault());
     if (typeof state.runs !== 'number') state = crDefault();
     state.history = state.history || [];
+    var prevCr = { runs: state.runs, wkts: state.wkts, balls: state.balls };
+    var justBall = false;
 
     function save() { saveJSON('ta_cr', state); }
     function striker() {
@@ -424,6 +526,7 @@
       }
       if (state.balls % 6 === 0 && !inningsOver()) swapStrike(); // strike changes at the end of the over
       if (inningsOver()) state.finished = true;
+      justBall = true;
       save();
       render();
     }
@@ -432,14 +535,6 @@
       var prev = state.history.pop();
       if (!prev) return;
       state = prev;
-      save();
-      render();
-    }
-
-    function resetMatch() {
-      state = crDefault();
-      clearWinner(CR_MATCH_ID);
-      removeResult(CR_MATCH_ID);
       save();
       render();
     }
@@ -456,6 +551,9 @@
     function render() {
       document.getElementById('crScore').textContent = state.runs + '/' + state.wkts;
       document.getElementById('crOvers').textContent = '(' + oversText(state.balls) + ' ov)';
+      if (state.runs !== prevCr.runs || state.wkts !== prevCr.wkts) bump(document.getElementById('crScore'));
+      if (state.balls !== prevCr.balls) bump(document.getElementById('crOvers'));
+      prevCr = { runs: state.runs, wkts: state.wkts, balls: state.balls };
       var crr = state.balls > 0 ? (state.runs / (state.balls / 6)).toFixed(1) : '0.0';
       document.getElementById('crCrr').textContent = 'CRR ' + crr;
       var need = state.target - state.runs;
@@ -466,12 +564,14 @@
       else needEl.textContent = 'Beach Road Blasters need ' + need + ' off ' + left + ' balls. Target ' + state.target + '.';
       var chips = document.getElementById('crChips');
       chips.innerHTML = '';
-      state.chips.slice(-12).forEach(function (c) {
+      state.chips.slice(-12).forEach(function (c, idx, arr) {
         var span = document.createElement('span');
         span.className = 'ball-chip' + (c === 4 ? ' four' : c === 6 ? ' six' : c === 'W' ? ' wicket' : '');
+        if (justBall && idx === arr.length - 1) span.className += ' chip-in';
         span.textContent = c;
         chips.appendChild(span);
       });
+      justBall = false;
       var body = document.getElementById('crBatBody');
       body.innerHTML = '';
       state.batsmen.forEach(function (b) {
@@ -527,8 +627,6 @@
     }
     var undoBtn = document.getElementById('crUndo');
     if (undoBtn) undoBtn.addEventListener('click', undoBall);
-    var reset = document.getElementById('crReset');
-    if (reset) reset.addEventListener('click', resetMatch);
     var finishBtn = document.getElementById('crFinish');
     if (finishBtn) finishBtn.addEventListener('click', finishMatch);
     var annBtn = document.getElementById('crAnnounceBtn');
@@ -569,19 +667,27 @@
     var state = loadJSON('ta_fb', fbDefault());
     if (typeof state.a !== 'number') state = fbDefault();
     state.history = state.history || [];
+    var prevFb = { a: state.a, b: state.b, minute: state.minute };
+    var justGoal = false;
 
     function save() { saveJSON('ta_fb', state); }
     function render() {
       document.getElementById('fbScoreA').textContent = state.a;
       document.getElementById('fbScoreB').textContent = state.b;
       document.getElementById('fbMinute').textContent = state.finished ? 'Full time' : state.minute + "'";
+      if (state.a !== prevFb.a) bump(document.getElementById('fbScoreA'));
+      if (state.b !== prevFb.b) bump(document.getElementById('fbScoreB'));
+      if (state.minute !== prevFb.minute) bump(document.getElementById('fbMinute'));
+      prevFb = { a: state.a, b: state.b, minute: state.minute };
       var ul = document.getElementById('fbTimeline');
       ul.innerHTML = '';
-      state.goals.forEach(function (g) {
+      state.goals.forEach(function (g, idx) {
         var li = document.createElement('li');
+        if (justGoal && idx === 0) li.className = 'slide-in';
         li.innerHTML = '<span class="min">' + g.min + "'</span> " + esc(g.text);
         ul.appendChild(li);
       });
+      justGoal = false;
       var fullBtn = document.getElementById('fbFullTime');
       if (fullBtn) fullBtn.disabled = state.finished;
       var ann = document.getElementById('fbAnnounce');
@@ -629,6 +735,7 @@
       var text = scorer ? 'Goal, ' + teamName + ', ' + scorer : 'Goal, ' + teamName;
       state.goals.unshift({ min: state.minute, team: team, text: text });
       if (input) input.value = '';
+      justGoal = true;
       save();
       render();
     }
@@ -636,13 +743,6 @@
       var prev = state.history.pop();
       if (!prev) return;
       state = prev;
-      save();
-      render();
-    }
-    function resetMatch() {
-      state = fbDefault();
-      clearWinner(FB_MATCH_ID);
-      removeResult(FB_MATCH_ID);
       save();
       render();
     }
@@ -657,8 +757,6 @@
     if (undoBtn) undoBtn.addEventListener('click', undoGoal);
     var fullBtn = document.getElementById('fbFullTime');
     if (fullBtn) fullBtn.addEventListener('click', function () { state.finished = true; save(); render(); });
-    var reset = document.getElementById('fbReset');
-    if (reset) reset.addEventListener('click', resetMatch);
     var annBtn = document.getElementById('fbAnnounceBtn');
     if (annBtn) annBtn.addEventListener('click', function () {
       var sel = document.getElementById('fbWinnerSelect');
@@ -825,8 +923,13 @@
       var format = 'Knockout';
       var fmt = document.querySelector('input[name="ctFormat"]:checked');
       if (fmt) format = fmt.value;
+      var sportCode = sport === 'badminton' ? 'BDM' : sport === 'cricket' ? 'CRI' : 'FTB';
+      var existingCount = loadJSON('ta_tournaments', []).filter(function (x) { return x.sport === sport; }).length;
+      var seq = existingCount + 1;
+      var tCode = 'AU26-' + sportCode + '-' + (seq < 10 ? '0' + seq : String(seq));
       var t = {
         id: 't' + Date.now(),
+        code: tCode,
         sport: sport,
         name: name,
         format: format,
@@ -860,7 +963,7 @@
       var done = document.getElementById('ctDone');
       var doneText = document.getElementById('ctDoneText');
       var doneLink = document.getElementById('ctDoneLink');
-      doneText.textContent = 'Tournament created: ' + name + '. It is now listed on the ' + sport + ' tournaments page, and ' + fixtures.length + ' fixture' + (fixtures.length === 1 ? '' : 's') + ' were generated on the ' + sport + ' fixtures page.';
+      doneText.textContent = 'Tournament created: ' + name + '. Tournament ID: ' + tCode + '. Players join with this ID. It is now listed on the ' + sport + ' tournaments page, and ' + fixtures.length + ' fixture' + (fixtures.length === 1 ? '' : 's') + ' were generated on the ' + sport + ' fixtures page.';
       doneLink.href = sport + '-tournaments.html';
       doneLink.textContent = 'View ' + sport + ' tournaments';
       done.classList.remove('hidden');
@@ -939,6 +1042,9 @@
     /* Registration count for the example tournament. */
     var exList = document.getElementById('exampleRegList');
     if (exList) exList.innerHTML = regCountHtml(exampleName);
+    /* Teams for the example tournament. */
+    var exTeams = document.getElementById('exampleTeams');
+    if (exTeams) exTeams.innerHTML = teamsHtml(tournamentCodeForName(exampleName));
     if (!mine.length) return;
     box.classList.remove('hidden');
     box.innerHTML = '';
@@ -952,9 +1058,10 @@
       var tw = winnerForTournament(t.name);
       var winnerLine = tw ? '<p><strong>Winner announced: ' + esc(tw.winner) + '</strong></p>' : '';
       var formLink = t.formLink ? '<p><a href="' + esc(t.formLink) + '">Register on Google Forms</a></p>' : '<p class="meta">Google Forms link not added yet.</p>';
-      div.innerHTML = '<div class="row-main"><h3>' + esc(t.name) + '</h3><p>' + esc(detail) + '</p><p>' + esc(t.dates || '') + ' ' + esc(t.venue || '') + ' Entry Rs ' + esc(t.fee || '') + '</p></div>' +
+      div.innerHTML = '<div class="row-main"><h3>' + esc(t.name) + '</h3><p>' + esc(detail) + '</p><p>' + esc(t.dates || '') + ' ' + esc(t.venue || '') + ' Entry Rs ' + esc(t.fee || '') + '</p><p>Tournament ID: <strong>' + esc(t.code || '') + '</strong>. Players join with this ID.</p></div>' +
         '<span class="tag">JUST CREATED</span>' + winnerLine + formLink +
         '<div class="reg-list">' + regCountHtml(t.name) + '</div>' +
+        '<div class="team-list">' + teamsHtml(t.code || '') + '</div>' +
         regFormHtml(t.name, t.sport, t.fee);
       box.appendChild(div);
     });
@@ -997,8 +1104,204 @@
   }
   fixturesInit();
 
+  /* ---------- Join Tournament (player enters a Tournament ID) ---------- */
+  function joinInit() {
+    var form = document.getElementById('joinForm');
+    if (!form) return;
+    var gate = document.getElementById('joinGate');
+    if (getRole() !== 'player') {
+      if (gate) gate.classList.remove('hidden');
+      form.classList.add('hidden');
+      var jl = document.getElementById('joinedList');
+      if (jl) jl.classList.add('hidden');
+      return;
+    }
+    var msg = document.getElementById('joinMsg');
+    var done = document.getElementById('joinDone');
+    var doneText = document.getElementById('joinDoneText');
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var code = document.getElementById('joinCode').value.trim().toUpperCase();
+      if (!code) {
+        msg.classList.remove('hidden');
+        msg.textContent = 'Enter a Tournament ID.';
+        return;
+      }
+      var t = findTournamentByCode(code);
+      if (!t) {
+        msg.classList.remove('hidden');
+        msg.textContent = 'No tournament with ID ' + code + ' was found. Check the ID on the tournament page and try again.';
+        if (done) done.classList.add('hidden');
+        return;
+      }
+      if (hasJoined(code)) {
+        msg.classList.remove('hidden');
+        msg.textContent = 'You have already joined ' + t.name + ' (' + code + ').';
+        if (done) done.classList.remove('hidden');
+        if (doneText) doneText.textContent = 'You joined ' + t.name + ' (' + code + '). Now create your team on the My Team page.';
+        return;
+      }
+      var joins = getJoins();
+      joins.push({ code: code, tournament: t.name, sport: t.sport, player: getUserName(), at: new Date().toISOString() });
+      saveJSON('ta_joins', joins);
+      msg.classList.add('hidden');
+      if (done) done.classList.remove('hidden');
+      if (doneText) doneText.textContent = 'You joined ' + t.name + ' (' + code + '). Now create your team on the My Team page.';
+      var link = document.getElementById('joinTeamLink');
+      if (link) link.href = 'my-team.html?code=' + encodeURIComponent(code);
+      renderJoined();
+    });
+    function renderJoined() {
+      var list = document.getElementById('joinedList');
+      if (!list) return;
+      var mine = myJoins();
+      if (!mine.length) { list.innerHTML = '<p class="meta">You have not joined a tournament yet.</p>'; return; }
+      var html = '';
+      mine.forEach(function (j) {
+        html += '<div class="row-item"><div class="row-main"><h3>' + esc(j.tournament) + '</h3><p>Tournament ID: ' + esc(j.code) + ', ' + esc(j.sport) + '</p></div><a class="btn btn-secondary" href="my-team.html?code=' + encodeURIComponent(j.code) + '">My team</a></div>';
+      });
+      list.innerHTML = html;
+    }
+    renderJoined();
+  }
+  joinInit();
+
+  /* ---------- My Team (player creates a team and adds player names) ---------- */
+  function teamInit() {
+    var form = document.getElementById('teamForm');
+    if (!form) return;
+    var gate = document.getElementById('teamGate');
+    if (getRole() !== 'player') {
+      if (gate) gate.classList.remove('hidden');
+      form.classList.add('hidden');
+      var mt = document.getElementById('myTeamsList');
+      if (mt) mt.classList.add('hidden');
+      return;
+    }
+    var sel = document.getElementById('teamTournament');
+    var nameInput = document.getElementById('teamName');
+    var playerInput = document.getElementById('teamPlayerName');
+    var addBtn = document.getElementById('teamAddPlayer');
+    var playersList = document.getElementById('teamPlayersList');
+    var msg = document.getElementById('teamMsg');
+    var players = [];
+    var params = new URLSearchParams(window.location.search || '');
+    var preCode = params.get('code') || '';
+    function refreshTournamentOptions() {
+      var mine = myJoins();
+      sel.innerHTML = '';
+      if (!mine.length) {
+        var opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = 'No joined tournament yet';
+        sel.appendChild(opt);
+      } else {
+        mine.forEach(function (j) {
+          var o = document.createElement('option');
+          o.value = j.code;
+          o.textContent = j.tournament + ' (' + j.code + ')';
+          sel.appendChild(o);
+        });
+        if (preCode) sel.value = preCode;
+      }
+    }
+    function renderPlayers() {
+      playersList.innerHTML = '';
+      if (!players.length) {
+        playersList.innerHTML = '<p class="meta">No players added yet.</p>';
+        return;
+      }
+      players.forEach(function (p, idx) {
+        var div = document.createElement('div');
+        div.className = 'row-item';
+        div.innerHTML = '<div class="row-main"><h3>' + esc(p) + '</h3></div><button type="button" class="btn btn-secondary" data-idx="' + idx + '">Remove</button>';
+        playersList.appendChild(div);
+      });
+      var btns = playersList.querySelectorAll('button[data-idx]');
+      for (var i = 0; i < btns.length; i++) {
+        btns[i].addEventListener('click', function () {
+          players.splice(parseInt(this.getAttribute('data-idx'), 10), 1);
+          renderPlayers();
+        });
+      }
+    }
+    function renderMyTeams() {
+      var box = document.getElementById('myTeamsList');
+      if (!box) return;
+      var mine = getTeams().filter(function (t) { return t.owner === getUserName(); });
+      if (!mine.length) { box.innerHTML = '<p class="meta">No team created yet.</p>'; return; }
+      var html = '';
+      mine.forEach(function (t) {
+        html += '<div class="card"><h3>' + esc(t.teamName) + '</h3><p>' + esc(t.tournament) + ' (' + esc(t.code) + ')</p><p>' + esc(t.players.join(', ')) + '</p></div>';
+      });
+      box.innerHTML = html;
+    }
+    refreshTournamentOptions();
+    renderPlayers();
+    renderMyTeams();
+    if (addBtn) addBtn.addEventListener('click', function () {
+      var p = playerInput.value.trim();
+      if (!p) return;
+      players.push(p);
+      playerInput.value = '';
+      renderPlayers();
+      playerInput.focus();
+    });
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var code = sel.value;
+      var teamName = nameInput.value.trim();
+      if (!code) {
+        msg.classList.remove('hidden');
+        msg.textContent = 'Join a tournament first, then pick it here.';
+        return;
+      }
+      if (!teamName) {
+        msg.classList.remove('hidden');
+        msg.textContent = 'Enter a team name.';
+        return;
+      }
+      if (!players.length) {
+        msg.classList.remove('hidden');
+        msg.textContent = 'Add at least one player to the team.';
+        return;
+      }
+      var t = findTournamentByCode(code);
+      var teams = getTeams();
+      var existing = null;
+      for (var i = 0; i < teams.length; i++) {
+        if (teams[i].code === code && teams[i].owner === getUserName()) existing = teams[i];
+      }
+      if (existing) {
+        existing.teamName = teamName;
+        existing.players = players.slice();
+      } else {
+        teams.push({ code: code, tournament: t ? t.name : '', sport: t ? t.sport : '', teamName: teamName, players: players.slice(), owner: getUserName(), at: new Date().toISOString() });
+      }
+      saveJSON('ta_teams', teams);
+      msg.classList.remove('hidden');
+      msg.textContent = 'Team saved: ' + teamName + ' (' + players.length + ' players) for ' + (t ? t.name : code) + '. It now shows on that tournament page.';
+      renderMyTeams();
+    });
+  }
+  teamInit();
+
   /* ---------- Home page: created tournaments + install hint ---------- */
   function homeInit() {
+    if (isPlayer()) {
+      var pl = document.getElementById('playerJoinedList');
+      if (pl) {
+        var mine = myJoins();
+        if (!mine.length) pl.innerHTML = '<p class="meta">You have not joined a tournament yet.</p>';
+        else {
+          var html = '';
+          mine.forEach(function (j) {
+            html += '<div class="row-item"><div class="row-main"><h3>' + esc(j.tournament) + '</h3><p>Tournament ID: ' + esc(j.code) + '</p></div><a class="btn btn-secondary" href="my-team.html?code=' + encodeURIComponent(j.code) + '">My team</a></div>';
+          });
+          pl.innerHTML = html;
+        }
+      }
+    }
     var box = document.getElementById('homeTournaments');
     if (box) {
       var saved = loadJSON('ta_tournaments', []);

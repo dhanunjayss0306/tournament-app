@@ -1,12 +1,14 @@
 /* Do4You service worker. Caches the app shell so the app opens
    offline and installs on the phone home screen. Plain cache, no build step. */
 
-var CACHE = 'do4you-v2';
+var CACHE = 'do4you-v3';
 var FILES = [
   '.',
   'index.html',
   'login.html',
   'create-tournament.html',
+  'join-tournament.html',
+  'my-team.html',
   'badminton-live.html',
   'badminton-fixtures.html',
   'badminton-tournaments.html',
