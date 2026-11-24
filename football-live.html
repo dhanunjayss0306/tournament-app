@@ -3,7 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Football Live, Tournament App</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0071E3">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Do4You">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<title>Football Live, Do4You</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -12,7 +19,7 @@
 <body>
 <header class="site-header">
   <div class="header-inner">
-    <a class="brand" href="index.html">Tournament App</a>
+    <a class="brand" href="index.html"><img src="logo-icon.svg" alt="" class="brand-mark"> Do4You</a>
     <button class="menu-btn" id="menuBtn" type="button">Menu</button>
   </div>
   <nav class="site-nav" id="siteNav">
@@ -56,6 +63,8 @@
     <ul class="timeline" id="fbTimeline"></ul>
   </div>
 
+  <div class="success-box hidden" id="fbWinnerBanner"></div>
+
   <div class="card scorer-only">
     <h3>Scorer controls</h3>
     <label for="fbScorerA">Scorer name, AU United (optional)</label>
@@ -67,15 +76,31 @@
     <input type="text" id="fbScorerB" placeholder="Enter scorer name">
     <div class="btn-row">
       <button type="button" class="btn" id="fbGoalB">+ Goal, Vizag City FC</button>
+      <button type="button" class="btn btn-secondary" id="fbMinutePlus">+1 minute</button>
+      <button type="button" class="btn btn-secondary" id="fbUndo">Undo last goal</button>
+      <button type="button" class="btn btn-secondary" id="fbFullTime">Full time</button>
       <button type="button" class="btn btn-secondary" id="fbReset">Reset</button>
     </div>
   </div>
   <p class="note hidden" id="watchNote">You are watching as a Player. Log in as Admin / Scorer to score this match.</p>
 
-  <div class="card card-soft">
+  <div class="card topadmin-only hidden" id="fbAnnounce">
+    <h3>Announce the winner, Top Admin only</h3>
+    <p class="meta">Shown after full time. The winner shows on this match page, the fixtures page and the tournament page, and updates the league table.</p>
+    <label for="fbWinnerSelect">Winner</label>
+    <select id="fbWinnerSelect">
+      <option value="AU United">AU United</option>
+      <option value="Vizag City FC">Vizag City FC</option>
+    </select>
+    <div class="btn-row">
+      <button type="button" class="btn" id="fbAnnounceBtn">Announce winner</button>
+    </div>
+    <p class="toast hidden" id="fbAnnounceMsg"></p>
+  </div>
+
+  <div class="card">
     <h3>League table</h3>
-    <p>1. AU United, 7 pts &nbsp;&middot;&nbsp; 2. Vizag City, 6 pts</p>
-    <p class="meta">Next, Tomorrow 7:00 AM, Port City FC vs AU United.</p>
+    <div id="fbTable"></div>
   </div>
 
   <div class="btn-row">
@@ -84,7 +109,9 @@
   </div>
 </main>
 
-<footer>Preview build for review. The match shown here is the one example. The real app adds live sync across phones, real logins and the installable mobile app.</footer>
+<footer>Scores, tournaments, fixtures, registrations and winners are saved on this device. Live sync across phones needs a Firebase project, see sync.js.</footer>
+<script src="firebase-config.js"></script>
+<script src="sync.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

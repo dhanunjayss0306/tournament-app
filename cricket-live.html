@@ -3,7 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cricket Live, Tournament App</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0071E3">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Do4You">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<title>Cricket Live, Do4You</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -12,7 +19,7 @@
 <body>
 <header class="site-header">
   <div class="header-inner">
-    <a class="brand" href="index.html">Tournament App</a>
+    <a class="brand" href="index.html"><img src="logo-icon.svg" alt="" class="brand-mark"> Do4You</a>
     <button class="menu-btn" id="menuBtn" type="button">Menu</button>
   </div>
   <nav class="site-nav" id="siteNav">
@@ -70,11 +77,11 @@
       <thead>
         <tr><th>Bowler</th><th class="num">O</th><th class="num">R</th><th class="num">W</th><th class="num">Econ</th></tr>
       </thead>
-      <tbody>
-        <tr><td>Rohit Kumar *</td><td class="num">1.2</td><td class="num">14</td><td class="num">1</td><td class="num">10.5</td></tr>
-      </tbody>
+      <tbody id="crBowlBody"></tbody>
     </table>
   </div>
+
+  <div class="success-box hidden" id="crWinnerBanner"></div>
 
   <div class="card scorer-only">
     <h3>Scorer controls, tap each ball</h3>
@@ -86,10 +93,31 @@
       <button type="button" class="btn btn-secondary cr-ball" data-runs="4" data-wicket="0">4</button>
       <button type="button" class="btn btn-secondary cr-ball" data-runs="6" data-wicket="0">6</button>
       <button type="button" class="btn btn-secondary cr-ball" data-runs="0" data-wicket="1">Wicket</button>
+      <button type="button" class="btn btn-secondary" id="crUndo">Undo ball</button>
+      <button type="button" class="btn btn-secondary" id="crFinish">Finish match</button>
       <button type="button" class="btn btn-secondary" id="crReset">Reset</button>
     </div>
   </div>
   <p class="note hidden" id="watchNote">You are watching as a Player. Log in as Admin / Scorer to score this match.</p>
+
+  <div class="card topadmin-only hidden" id="crAnnounce">
+    <h3>Announce the winner, Top Admin only</h3>
+    <p class="meta">Shown after the match is finished. The winner shows on this match page, the fixtures page and the tournament page, and updates the points table.</p>
+    <label for="crWinnerSelect">Winner</label>
+    <select id="crWinnerSelect">
+      <option value="AU Warriors">AU Warriors</option>
+      <option value="Beach Road Blasters">Beach Road Blasters</option>
+    </select>
+    <div class="btn-row">
+      <button type="button" class="btn" id="crAnnounceBtn">Announce winner</button>
+    </div>
+    <p class="toast hidden" id="crAnnounceMsg"></p>
+  </div>
+
+  <div class="card">
+    <h3>Points table</h3>
+    <div id="crPoints"></div>
+  </div>
 
   <div class="btn-row">
     <a class="btn btn-secondary" href="cricket-fixtures.html">Cricket fixtures</a>
@@ -97,7 +125,9 @@
   </div>
 </main>
 
-<footer>Preview build for review. The match shown here is the one example. The real app adds live sync across phones, real logins and the installable mobile app.</footer>
+<footer>Scores, tournaments, fixtures, registrations and winners are saved on this device. Live sync across phones needs a Firebase project, see sync.js.</footer>
+<script src="firebase-config.js"></script>
+<script src="sync.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

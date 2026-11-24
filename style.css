@@ -1,4 +1,4 @@
-/* Tournament App - shared styles. Flat design law: white #FFFFFF, ink #1D1D1F, blue #0071E3, Inter. No purple, no gradients, no glow, no emoji icons, no em dashes. */
+/* Do4You - shared styles. Flat design law: white #FFFFFF, ink #1D1D1F, blue #0071E3, Inter. No purple, no gradients, no glow, no emoji icons, no em dashes. */
 
 :root {
   --white: #FFFFFF;
@@ -433,3 +433,8 @@ footer {
   font-size: 14px;
   text-align: center;
 }
+
+/* Do4You brand: provided logo files, used exactly as supplied. */
+.brand { display: inline-flex; align-items: center; gap: 8px; }
+.brand-mark { width: 28px; height: 28px; display: block; }
+.logo-lockup { width: 180px; max-width: 60%; height: auto; display: block; margin: 0 0 14px 0; }
