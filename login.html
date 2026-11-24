@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Login, Tournament App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="index.html">Tournament App</a>
+    <button class="menu-btn" id="menuBtn" type="button">Menu</button>
+  </div>
+  <nav class="site-nav" id="siteNav">
+    <a href="index.html">Home</a>
+    <a href="badminton-live.html">Badminton</a>
+    <a href="cricket-live.html">Cricket</a>
+    <a href="football-live.html">Football</a>
+    <details class="nav-drop">
+      <summary>Fixtures</summary>
+      <div class="nav-drop-menu">
+        <a href="badminton-fixtures.html">Badminton Fixtures</a>
+        <a href="cricket-fixtures.html">Cricket Fixtures</a>
+        <a href="football-fixtures.html">Football Fixtures</a>
+      </div>
+    </details>
+    <details class="nav-drop">
+      <summary>Tournaments</summary>
+      <div class="nav-drop-menu">
+        <a href="badminton-tournaments.html">Badminton Tournaments</a>
+        <a href="cricket-tournaments.html">Cricket Tournaments</a>
+        <a href="football-tournaments.html">Football Tournaments</a>
+      </div>
+    </details>
+    <a href="create-tournament.html">Create Tournament</a>
+    <a href="login.html" class="active" id="loginLink">Login</a>
+    <span class="nav-user hidden" id="navUser"><span id="navUserText"></span> <button type="button" id="navLogout">Log out</button></span>
+  </nav>
+</header>
+
+<main class="page">
+  <div class="page-head">
+    <p class="eyebrow">Login</p>
+    <h1>Log in to your role.</h1>
+    <p class="lead">Three roles, each with its own login. Top Admin creates tournaments and announces winners. Admin / Scorer scores matches live. Player registers and watches live scores.</p>
+  </div>
+
+  <div class="card">
+    <div class="success-box hidden" id="loginStatus"></div>
+    <form id="loginForm">
+      <label for="loginName">Your name</label>
+      <input type="text" id="loginName" placeholder="Enter your name" autocomplete="name">
+
+      <label for="loginRole">Role</label>
+      <select id="loginRole">
+        <option value="">Pick your role</option>
+        <option value="top-admin">Top Admin</option>
+        <option value="scorer">Admin / Scorer</option>
+        <option value="player">Player</option>
+      </select>
+
+      <label for="loginCode">Code</label>
+      <input type="password" id="loginCode" placeholder="Enter your code" autocomplete="current-password">
+      <p class="help">Preview login. Any code works here. In the real app each role has its own account and code.</p>
+
+      <div class="btn-row">
+        <button class="btn" type="submit">Log in</button>
+      </div>
+      <div class="toast hidden" id="loginMsg"></div>
+    </form>
+    <div class="btn-row">
+      <button class="btn btn-secondary" type="button" id="logoutBtn">Log out</button>
+    </div>
+  </div>
+
+  <div class="card card-soft">
+    <h3>What each role can do</h3>
+    <p><strong>Top Admin:</strong> creates tournaments, sets sport, teams, players, format and entry fee, assigns scorers, announces the winner.</p>
+    <p><strong>Admin / Scorer:</strong> stands at the court or ground and scores live. Plus 1 in badminton, ball by ball in cricket, goals in football.</p>
+    <p><strong>Player:</strong> registers, pays the entry fee, and watches live scores, fixtures and results on their phone. No scoring controls.</p>
+  </div>
+</main>
+
+<footer>Preview build for review. The real app adds live sync across phones, real logins and the installable mobile app.</footer>
+<script src="app.js"></script>
+</body>
+</html>

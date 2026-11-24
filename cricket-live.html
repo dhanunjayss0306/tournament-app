@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cricket Live, Tournament App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="index.html">Tournament App</a>
+    <button class="menu-btn" id="menuBtn" type="button">Menu</button>
+  </div>
+  <nav class="site-nav" id="siteNav">
+    <a href="index.html">Home</a>
+    <a href="badminton-live.html">Badminton</a>
+    <a href="cricket-live.html" class="active">Cricket</a>
+    <a href="football-live.html">Football</a>
+    <details class="nav-drop">
+      <summary>Fixtures</summary>
+      <div class="nav-drop-menu">
+        <a href="badminton-fixtures.html">Badminton Fixtures</a>
+        <a href="cricket-fixtures.html">Cricket Fixtures</a>
+        <a href="football-fixtures.html">Football Fixtures</a>
+      </div>
+    </details>
+    <details class="nav-drop">
+      <summary>Tournaments</summary>
+      <div class="nav-drop-menu">
+        <a href="badminton-tournaments.html">Badminton Tournaments</a>
+        <a href="cricket-tournaments.html">Cricket Tournaments</a>
+        <a href="football-tournaments.html">Football Tournaments</a>
+      </div>
+    </details>
+    <a href="create-tournament.html">Create Tournament</a>
+    <a href="login.html" id="loginLink">Login</a>
+    <span class="nav-user hidden" id="navUser"><span id="navUserText"></span> <button type="button" id="navLogout">Log out</button></span>
+  </nav>
+</header>
+
+<main class="page">
+  <div class="page-head">
+    <p class="eyebrow"><span class="dot"></span>Live, Vizag T20 Cup, AU Ground, 10 overs</p>
+    <h1>AU Warriors vs Beach Road Blasters</h1>
+    <p class="meta">Beach Road Blasters batting. Tap each ball to score.</p>
+  </div>
+
+  <div class="card">
+    <p class="meta">Batting, Beach Road Blasters</p>
+    <p><span class="big-score" id="crScore" style="text-align:left">86/3</span> <span class="meta" id="crOvers">(7.2 ov)</span></p>
+    <p class="meta"><span id="crCrr">CRR 11.7</span> &middot; <span id="crNeed">Beach Road Blasters need 44 off 16 balls. Target 130.</span></p>
+    <p class="meta">Ball by ball</p>
+    <div class="chips" id="crChips"></div>
+  </div>
+
+  <div class="card">
+    <h3>Batting, Beach Road Blasters</h3>
+    <table class="score-table">
+      <thead>
+        <tr><th>Batter</th><th class="num">R</th><th class="num">B</th><th class="num">4s</th><th class="num">6s</th><th class="num">SR</th></tr>
+      </thead>
+      <tbody id="crBatBody"></tbody>
+    </table>
+    <h3 style="margin-top:18px">Bowling</h3>
+    <table class="score-table">
+      <thead>
+        <tr><th>Bowler</th><th class="num">O</th><th class="num">R</th><th class="num">W</th><th class="num">Econ</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Rohit Kumar *</td><td class="num">1.2</td><td class="num">14</td><td class="num">1</td><td class="num">10.5</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card scorer-only">
+    <h3>Scorer controls, tap each ball</h3>
+    <div class="btn-row">
+      <button type="button" class="btn btn-secondary cr-ball" data-runs="0" data-wicket="0">0</button>
+      <button type="button" class="btn btn-secondary cr-ball" data-runs="1" data-wicket="0">1</button>
+      <button type="button" class="btn btn-secondary cr-ball" data-runs="2" data-wicket="0">2</button>
+      <button type="button" class="btn btn-secondary cr-ball" data-runs="3" data-wicket="0">3</button>
+      <button type="button" class="btn btn-secondary cr-ball" data-runs="4" data-wicket="0">4</button>
+      <button type="button" class="btn btn-secondary cr-ball" data-runs="6" data-wicket="0">6</button>
+      <button type="button" class="btn btn-secondary cr-ball" data-runs="0" data-wicket="1">Wicket</button>
+      <button type="button" class="btn btn-secondary" id="crReset">Reset</button>
+    </div>
+  </div>
+  <p class="note hidden" id="watchNote">You are watching as a Player. Log in as Admin / Scorer to score this match.</p>
+
+  <div class="btn-row">
+    <a class="btn btn-secondary" href="cricket-fixtures.html">Cricket fixtures</a>
+    <a class="btn btn-secondary" href="cricket-tournaments.html">Cricket tournaments</a>
+  </div>
+</main>
+
+<footer>Preview build for review. The match shown here is the one example. The real app adds live sync across phones, real logins and the installable mobile app.</footer>
+<script src="app.js"></script>
+</body>
+</html>

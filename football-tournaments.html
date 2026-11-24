@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Football Tournaments, Tournament App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="index.html">Tournament App</a>
+    <button class="menu-btn" id="menuBtn" type="button">Menu</button>
+  </div>
+  <nav class="site-nav" id="siteNav">
+    <a href="index.html">Home</a>
+    <a href="badminton-live.html">Badminton</a>
+    <a href="cricket-live.html">Cricket</a>
+    <a href="football-live.html">Football</a>
+    <details class="nav-drop">
+      <summary>Fixtures</summary>
+      <div class="nav-drop-menu">
+        <a href="badminton-fixtures.html">Badminton Fixtures</a>
+        <a href="cricket-fixtures.html">Cricket Fixtures</a>
+        <a href="football-fixtures.html">Football Fixtures</a>
+      </div>
+    </details>
+    <details class="nav-drop" open>
+      <summary>Tournaments</summary>
+      <div class="nav-drop-menu">
+        <a href="badminton-tournaments.html">Badminton Tournaments</a>
+        <a href="cricket-tournaments.html">Cricket Tournaments</a>
+        <a href="football-tournaments.html">Football Tournaments</a>
+      </div>
+    </details>
+    <a href="create-tournament.html">Create Tournament</a>
+    <a href="login.html" id="loginLink">Login</a>
+    <span class="nav-user hidden" id="navUser"><span id="navUserText"></span> <button type="button" id="navLogout">Log out</button></span>
+  </nav>
+</header>
+
+<main class="page" data-sport="football">
+  <div class="page-head">
+    <p class="eyebrow">Football</p>
+    <h1>Tournaments.</h1>
+    <p class="lead">Football tournaments in Visakhapatnam.</p>
+  </div>
+
+  <div class="row-item">
+    <div class="row-main">
+      <h3>Vizag 5-a-side League</h3>
+      <p>Football, 8 teams, 5-a-side, League</p>
+      <p>Andhra University Ground, Entry Rs 100 per player</p>
+    </div>
+    <span class="tag tag-live">LIVE</span>
+  </div>
+  <div class="btn-row">
+    <a class="btn btn-secondary" href="football-live.html">View live score</a>
+  </div>
+
+  <div id="savedTournaments" class="hidden"></div>
+
+  <div class="empty">
+    <strong>No more tournaments yet.</strong>
+    More tournaments will appear here. The Top Admin adds them.
+  </div>
+</main>
+
+<footer>Preview build for review. The real app adds live sync across phones, real logins and the installable mobile app.</footer>
+<script src="app.js"></script>
+</body>
+</html>
