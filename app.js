@@ -119,15 +119,27 @@
       siteNav.classList.toggle('open');
     });
   }
-  /* Fixtures and Tournaments are an accordion: opening one closes the other. */
+  /* Fixtures and Tournaments are an accordion: opening one closes the other.
+     Clicking outside a dropdown closes it, and it never reopens on its own.
+     Picking a menu item closes its dropdown too. */
   var navDrops = document.querySelectorAll('.nav-drop');
+  function closeNavDrops(except) {
+    for (var cd = 0; cd < navDrops.length; cd++) {
+      if (navDrops[cd] !== except && navDrops[cd].open) navDrops[cd].open = false;
+    }
+  }
   for (var nd = 0; nd < navDrops.length; nd++) {
     navDrops[nd].addEventListener('toggle', function () {
-      if (!this.open) return;
-      for (var od = 0; od < navDrops.length; od++) {
-        if (navDrops[od] !== this && navDrops[od].open) navDrops[od].open = false;
-      }
+      if (this.open) closeNavDrops(this);
     });
+  }
+  document.addEventListener('click', function (e) {
+    var inside = e.target && e.target.closest ? e.target.closest('.nav-drop') : null;
+    if (!inside) closeNavDrops(null);
+  });
+  var navDropLinks = document.querySelectorAll('.nav-drop-menu a');
+  for (var nl = 0; nl < navDropLinks.length; nl++) {
+    navDropLinks[nl].addEventListener('click', function () { closeNavDrops(null); });
   }
 
   /* ---------- Service worker (PWA install) ---------- */
@@ -478,9 +490,11 @@
       /* Labels sit at the top of the box, the stickman stands in the middle. */
       sLabel.setAttribute('x', scx); sLabel.setAttribute('y', sBox.y + 18);
       rLabel.setAttribute('x', rcx); rLabel.setAttribute('y', rBox.y + 18);
-      /* Stickman server stands in the box the server must serve from. It
-         slides to the new box when the score or the server changes. In
-         doubles the partner stands in the other box on the same side. */
+      /* A stickman stands on each side and they all move on their own when
+         the score or the serve changes. The server, with a racket, stands in
+         the box the server must serve from. The receiver stands in the box
+         the serve goes to. In doubles each side has a partner in the other
+         box on that side. */
       var stick = document.getElementById('bmStickServer');
       if (stick) {
         stick.style.display = '';
@@ -494,6 +508,21 @@
           partner.style.transform = 'translate(' + (pBox.x + pBox.w / 2) + 'px,' + (pBox.y + pBox.h / 2) + 'px)';
         } else {
           partner.style.display = 'none';
+        }
+      }
+      var receiver = document.getElementById('bmStickReceiver');
+      if (receiver) {
+        receiver.style.display = '';
+        receiver.style.transform = 'translate(' + rcx + 'px,' + rcy + 'px)';
+      }
+      var rPartner = document.getElementById('bmStickReceiverPartner');
+      if (rPartner) {
+        if (state.mode === 'doubles') {
+          var rpBox = boxFor(rSide, side);
+          rPartner.style.display = '';
+          rPartner.style.transform = 'translate(' + (rpBox.x + rpBox.w / 2) + 'px,' + (rpBox.y + rpBox.h / 2) + 'px)';
+        } else {
+          rPartner.style.display = 'none';
         }
       }
     }

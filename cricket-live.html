@@ -43,10 +43,8 @@
         <a href="football-tournaments.html">Football Tournaments</a>
       </div>
     </details>
-    <a href="create-tournament.html" class="nav-create">Create Tournament</a>
     <a href="join-tournament.html" class="nav-player">Join Tournament</a>
     <a href="my-team.html" class="nav-player">My Team</a>
-    <a href="login.html" id="loginLink">Login</a>
     <span class="nav-user hidden" id="navUser"><span id="navUserText"></span> <button type="button" id="navLogout">Log out</button></span>
   </nav>
 </header>
@@ -83,28 +81,7 @@
         <text id="crBoardText" x="310" y="29" fill="#FFFFFF" font-size="16" font-weight="800" text-anchor="middle">+4</text>
       </svg>
     </div>
-    <p class="meta">Ball by ball</p>
-    <div class="chips" id="crChips"></div>
   </div>
-
-  <div class="card">
-    <h3>Batting, Beach Road Blasters</h3>
-    <table class="score-table">
-      <thead>
-        <tr><th>Batter</th><th class="num">R</th><th class="num">B</th><th class="num">4s</th><th class="num">6s</th><th class="num">SR</th></tr>
-      </thead>
-      <tbody id="crBatBody"></tbody>
-    </table>
-    <h3 style="margin-top:18px">Bowling</h3>
-    <table class="score-table">
-      <thead>
-        <tr><th>Bowler</th><th class="num">O</th><th class="num">R</th><th class="num">W</th><th class="num">Econ</th></tr>
-      </thead>
-      <tbody id="crBowlBody"></tbody>
-    </table>
-  </div>
-
-  <div class="success-box hidden" id="crWinnerBanner"></div>
 
   <div class="card code-box scorer-only" id="crCodeBox">
     <h3>Score this match</h3>
@@ -131,6 +108,30 @@
     </div>
   </div>
   <p class="note hidden" id="watchNote">You are watching as a Player. Log in as Admin / Scorer to score this match.</p>
+
+  <div class="card">
+    <h3>Ball by ball</h3>
+    <div class="chips" id="crChips"></div>
+  </div>
+
+  <div class="card">
+    <h3>Batting, Beach Road Blasters</h3>
+    <table class="score-table">
+      <thead>
+        <tr><th>Batter</th><th class="num">R</th><th class="num">B</th><th class="num">4s</th><th class="num">6s</th><th class="num">SR</th></tr>
+      </thead>
+      <tbody id="crBatBody"></tbody>
+    </table>
+    <h3 style="margin-top:18px">Bowling</h3>
+    <table class="score-table">
+      <thead>
+        <tr><th>Bowler</th><th class="num">O</th><th class="num">R</th><th class="num">W</th><th class="num">Econ</th></tr>
+      </thead>
+      <tbody id="crBowlBody"></tbody>
+    </table>
+  </div>
+
+  <div class="success-box hidden" id="crWinnerBanner"></div>
 
   <div class="card topadmin-only hidden" id="crAnnounce">
     <h3>Announce the winner, Top Admin only</h3>

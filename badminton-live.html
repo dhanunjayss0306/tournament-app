@@ -43,10 +43,8 @@
         <a href="football-tournaments.html">Football Tournaments</a>
       </div>
     </details>
-    <a href="create-tournament.html" class="nav-create">Create Tournament</a>
     <a href="join-tournament.html" class="nav-player">Join Tournament</a>
     <a href="my-team.html" class="nav-player">My Team</a>
-    <a href="login.html" id="loginLink">Login</a>
     <span class="nav-user hidden" id="navUser"><span id="navUserText"></span> <button type="button" id="navLogout">Log out</button></span>
   </nav>
 </header>
@@ -135,7 +133,7 @@
 
   <div class="card">
     <h3>The court shows where to serve</h3>
-    <p class="meta">The stickman shows where the server stands. The highlighted boxes follow the score: even score, serve from the right box; odd score, from the left box. Serve goes diagonally across.</p>
+    <p class="meta">A stickman stands on each side and they move on their own when the score or the serve changes. The server, with a racket, stands in the box the server must serve from. The receiver stands in the box the serve goes to. In doubles each side has two stickmen. The highlighted boxes follow the score: even score, serve from the right box; odd score, from the left box. Serve goes diagonally across.</p>
     <div class="court-wrap">
       <svg id="courtSvg" class="court-svg" viewBox="0 0 320 660" role="img" aria-label="Badminton court diagram showing the service boxes">
         <rect x="20" y="20" width="280" height="615" fill="#2F7D32"></rect>
@@ -165,6 +163,22 @@
           <line x1="0" y1="6" x2="7" y2="22"></line>
         </g>
         <g id="bmStickPartner" class="court-stick" stroke="#1D1D1F" stroke-width="2.5" stroke-linecap="round" fill="none" style="display:none">
+          <circle cx="0" cy="-16" r="6" fill="#FFFFFF"></circle>
+          <line x1="0" y1="-10" x2="0" y2="6"></line>
+          <line x1="0" y1="-7" x2="-10" y2="2"></line>
+          <line x1="0" y1="-7" x2="10" y2="2"></line>
+          <line x1="0" y1="6" x2="-7" y2="22"></line>
+          <line x1="0" y1="6" x2="7" y2="22"></line>
+        </g>
+        <g id="bmStickReceiver" class="court-stick" stroke="#1D1D1F" stroke-width="2.5" stroke-linecap="round" fill="none" style="display:none">
+          <circle cx="0" cy="-16" r="6" fill="#FFFFFF"></circle>
+          <line x1="0" y1="-10" x2="0" y2="6"></line>
+          <line x1="0" y1="-7" x2="-10" y2="2"></line>
+          <line x1="0" y1="-7" x2="10" y2="2"></line>
+          <line x1="0" y1="6" x2="-7" y2="22"></line>
+          <line x1="0" y1="6" x2="7" y2="22"></line>
+        </g>
+        <g id="bmStickReceiverPartner" class="court-stick" stroke="#1D1D1F" stroke-width="2.5" stroke-linecap="round" fill="none" style="display:none">
           <circle cx="0" cy="-16" r="6" fill="#FFFFFF"></circle>
           <line x1="0" y1="-10" x2="0" y2="6"></line>
           <line x1="0" y1="-7" x2="-10" y2="2"></line>
