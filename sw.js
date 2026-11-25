@@ -1,7 +1,7 @@
 /* Do4You service worker. Caches the app shell so the app opens
    offline and installs on the phone home screen. Plain cache, no build step. */
 
-var CACHE = 'do4you-v3';
+var CACHE = 'do4you-v4';
 var FILES = [
   '.',
   'index.html',

@@ -24,9 +24,9 @@
   </div>
   <nav class="site-nav" id="siteNav">
     <a href="index.html">Home</a>
-    <a href="badminton-live.html" class="active">Badminton</a>
-    <a href="cricket-live.html">Cricket</a>
-    <a href="football-live.html">Football</a>
+    <a href="badminton-fixtures.html" class="active">Badminton</a>
+    <a href="cricket-fixtures.html">Cricket</a>
+    <a href="football-fixtures.html">Football</a>
     <details class="nav-drop">
       <summary>Fixtures</summary>
       <div class="nav-drop-menu">
@@ -58,11 +58,39 @@
     <p class="meta">AU Open Badminton 2026, Best of 3 games, Rally scoring to 21</p>
   </div>
 
+  <div class="card code-box scorer-only" id="bmCodeBox">
+    <h3>Score this match</h3>
+    <p class="meta code-shown">Match code: <strong id="bmCodeShown">1122</strong>. The code is also on the fixtures page. Enter it below to unlock scoring.</p>
+    <label for="bmCodeInput">Match code</label>
+    <input type="text" id="bmCodeInput" inputmode="numeric" placeholder="Enter the 4-digit code" autocomplete="off">
+    <div class="btn-row"><button type="button" class="btn" id="bmCodeBtn">Unlock scoring</button></div>
+    <p class="code-msg hidden" id="bmCodeMsg"></p>
+  </div>
+  <p class="note hidden" id="bmCodeUnlocked">Scoring unlocked for this match.</p>
+
   <div class="toggle-row scorer-only">
     <button type="button" class="toggle-btn on" id="bmSinglesBtn">Singles</button>
     <button type="button" class="toggle-btn" id="bmDoublesBtn">Doubles</button>
   </div>
   <p class="meta"><span id="bmModeLabel">Singles</span>, tap +1 when a side wins a rally.</p>
+
+  <div class="anim-stage" id="bmAnimStage" aria-hidden="true">
+    <svg class="anim-svg" viewBox="0 0 360 96" role="img" aria-label="Badminton point animation">
+      <line x1="8" y1="84" x2="352" y2="84" stroke="#1D1D1F" stroke-width="2"></line>
+      <g id="bmRacket">
+        <rect x="30" y="50" width="6" height="30" rx="3" fill="#1D1D1F"></rect>
+        <ellipse cx="33" cy="34" rx="15" ry="19" fill="none" stroke="#1D1D1F" stroke-width="3"></ellipse>
+        <line x1="20" y1="30" x2="46" y2="38" stroke="#1D1D1F" stroke-width="1.5"></line>
+        <line x1="20" y1="38" x2="46" y2="30" stroke="#1D1D1F" stroke-width="1.5"></line>
+      </g>
+      <g id="bmCock">
+        <circle cx="70" cy="78" r="4.5" fill="#1D1D1F"></circle>
+        <polygon points="66,75 74,75 70,60" fill="#FFFFFF" stroke="#1D1D1F" stroke-width="1.5"></polygon>
+      </g>
+      <rect x="268" y="8" width="84" height="30" rx="6" fill="#0071E3"></rect>
+      <text id="bmBoardText" x="310" y="29" fill="#FFFFFF" font-size="16" font-weight="800" text-anchor="middle">+1</text>
+    </svg>
+  </div>
 
   <div class="scoreboard">
     <div class="player-card serving" id="bmCardA">
@@ -107,7 +135,7 @@
 
   <div class="card">
     <h3>The court shows where to serve</h3>
-    <p class="meta">No player models, just the court. The highlighted boxes follow the score: even score, serve from the right box; odd score, from the left box. Serve goes diagonally across.</p>
+    <p class="meta">The stickman shows where the server stands. The highlighted boxes follow the score: even score, serve from the right box; odd score, from the left box. Serve goes diagonally across.</p>
     <div class="court-wrap">
       <svg id="courtSvg" class="court-svg" viewBox="0 0 320 660" role="img" aria-label="Badminton court diagram showing the service boxes">
         <rect x="20" y="20" width="280" height="615" fill="#2F7D32"></rect>
@@ -127,6 +155,23 @@
         <line id="serveArrow" stroke="#FFFFFF" stroke-width="2.5" stroke-dasharray="7 6"></line>
         <text id="serveLabel" fill="#FFFFFF" font-size="15" font-weight="800" text-anchor="middle">SERVE</text>
         <text id="receiveLabel" fill="#1D1D1F" font-size="15" font-weight="800" text-anchor="middle">RECEIVE</text>
+        <g id="bmStickServer" class="court-stick" stroke="#1D1D1F" stroke-width="2.5" stroke-linecap="round" fill="none">
+          <circle cx="0" cy="-16" r="6" fill="#FFFFFF"></circle>
+          <line x1="0" y1="-10" x2="0" y2="6"></line>
+          <line x1="0" y1="-7" x2="-10" y2="0"></line>
+          <line x1="0" y1="-7" x2="10" y2="-15"></line>
+          <ellipse cx="14" cy="-19" rx="5.5" ry="7.5" transform="rotate(20 14 -19)"></ellipse>
+          <line x1="0" y1="6" x2="-7" y2="22"></line>
+          <line x1="0" y1="6" x2="7" y2="22"></line>
+        </g>
+        <g id="bmStickPartner" class="court-stick" stroke="#1D1D1F" stroke-width="2.5" stroke-linecap="round" fill="none" style="display:none">
+          <circle cx="0" cy="-16" r="6" fill="#FFFFFF"></circle>
+          <line x1="0" y1="-10" x2="0" y2="6"></line>
+          <line x1="0" y1="-7" x2="-10" y2="2"></line>
+          <line x1="0" y1="-7" x2="10" y2="2"></line>
+          <line x1="0" y1="6" x2="-7" y2="22"></line>
+          <line x1="0" y1="6" x2="7" y2="22"></line>
+        </g>
       </svg>
     </div>
     <div class="legend">

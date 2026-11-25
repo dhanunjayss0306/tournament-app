@@ -24,9 +24,9 @@
   </div>
   <nav class="site-nav" id="siteNav">
     <a href="index.html">Home</a>
-    <a href="badminton-live.html">Badminton</a>
-    <a href="cricket-live.html">Cricket</a>
-    <a href="football-live.html" class="active">Football</a>
+    <a href="badminton-fixtures.html">Badminton</a>
+    <a href="cricket-fixtures.html">Cricket</a>
+    <a href="football-fixtures.html" class="active">Football</a>
     <details class="nav-drop">
       <summary>Fixtures</summary>
       <div class="nav-drop-menu">
@@ -66,6 +66,16 @@
   </div>
 
   <div class="success-box hidden" id="fbWinnerBanner"></div>
+
+  <div class="card code-box scorer-only" id="fbCodeBox">
+    <h3>Score this match</h3>
+    <p class="meta code-shown">Match code: <strong id="fbCodeShown">3344</strong>. The code is also on the fixtures page. Enter it below to unlock scoring.</p>
+    <label for="fbCodeInput">Match code</label>
+    <input type="text" id="fbCodeInput" inputmode="numeric" placeholder="Enter the 4-digit code" autocomplete="off">
+    <div class="btn-row"><button type="button" class="btn" id="fbCodeBtn">Unlock scoring</button></div>
+    <p class="code-msg hidden" id="fbCodeMsg"></p>
+  </div>
+  <p class="note hidden" id="fbCodeUnlocked">Scoring unlocked for this match.</p>
 
   <div class="card scorer-only">
     <h3>Scorer controls</h3>

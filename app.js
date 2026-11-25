@@ -36,12 +36,97 @@
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
+  /* ---------- Match access code ---------- */
+  /* Every match has a short code. Scoring is locked until the code is entered.
+     The example match of each sport has a fixed simple code, shown on the
+     fixture and on the live page. Created matches get a random 4-digit code. */
+  var MATCH_CODES = {
+    badminton: { id: 'bm-example', code: '1122' },
+    cricket: { id: 'cr-example', code: '2233' },
+    football: { id: 'fb-example', code: '3344' }
+  };
+  function currentMatch(sport) {
+    var saved = loadJSON('ta_current_match_' + sport, null);
+    if (saved && saved.id && saved.code) return saved;
+    return MATCH_CODES[sport];
+  }
+  function setCurrentMatch(sport, id, code) {
+    saveJSON('ta_current_match_' + sport, { id: id, code: code });
+  }
+  function isMatchUnlocked(sport, matchId) {
+    var u = loadJSON('ta_unlock_' + sport, null);
+    return !!(u && u.id === matchId);
+  }
+  /* Tapping a fixture sets the match that its live page will open. */
+  document.addEventListener('click', function (e) {
+    var t = e.target && e.target.closest ? e.target.closest('[data-match-id]') : null;
+    if (!t) return;
+    var sport = t.getAttribute('data-sport');
+    var id = t.getAttribute('data-match-id');
+    var code = t.getAttribute('data-match-code');
+    if (sport && id && code) setCurrentMatch(sport, id, code);
+  });
+  /* Lock the scoring controls on a live page until the match code is entered.
+     Players never score, even with the code. Call from each live page init. */
+  function setupMatchCode(sport, prefix) {
+    var box = document.getElementById(prefix + 'CodeBox');
+    if (!box) return;
+    var match = currentMatch(sport);
+    var shown = document.getElementById(prefix + 'CodeShown');
+    if (shown) shown.textContent = match.code;
+    var controls = document.querySelectorAll('.scorer-only');
+    var unlockedNote = document.getElementById(prefix + 'CodeUnlocked');
+    function setLocked(locked) {
+      for (var i = 0; i < controls.length; i++) {
+        if (controls[i] === box) continue;
+        controls[i].classList.toggle('hidden', locked);
+      }
+      box.classList.toggle('hidden', !locked);
+      if (unlockedNote) unlockedNote.classList.toggle('hidden', locked);
+    }
+    if (isPlayer()) {
+      box.classList.add('hidden');
+      for (var j = 0; j < controls.length; j++) {
+        if (controls[j] !== box) controls[j].classList.add('hidden');
+      }
+      return;
+    }
+    if (isMatchUnlocked(sport, match.id)) setLocked(false);
+    else setLocked(true);
+    var btn = document.getElementById(prefix + 'CodeBtn');
+    var input = document.getElementById(prefix + 'CodeInput');
+    var msg = document.getElementById(prefix + 'CodeMsg');
+    if (btn && input) {
+      btn.addEventListener('click', function () {
+        var v = input.value.trim();
+        if (v === match.code) {
+          saveJSON('ta_unlock_' + sport, { id: match.id, code: match.code });
+          if (msg) { msg.className = 'code-msg ok'; msg.textContent = 'Code correct. Scoring unlocked.'; }
+          setLocked(false);
+        } else {
+          if (msg) { msg.className = 'code-msg wrong'; msg.textContent = 'Wrong code. Check the code on the fixtures page and try again.'; }
+          setLocked(true);
+        }
+      });
+    }
+  }
+
   /* ---------- Navigation ---------- */
   var menuBtn = document.getElementById('menuBtn');
   var siteNav = document.getElementById('siteNav');
   if (menuBtn && siteNav) {
     menuBtn.addEventListener('click', function () {
       siteNav.classList.toggle('open');
+    });
+  }
+  /* Fixtures and Tournaments are an accordion: opening one closes the other. */
+  var navDrops = document.querySelectorAll('.nav-drop');
+  for (var nd = 0; nd < navDrops.length; nd++) {
+    navDrops[nd].addEventListener('toggle', function () {
+      if (!this.open) return;
+      for (var od = 0; od < navDrops.length; od++) {
+        if (navDrops[od] !== this && navDrops[od].open) navDrops[od].open = false;
+      }
     });
   }
 
@@ -261,12 +346,15 @@
 
   function bmInit() {
     if (!document.getElementById('bmScoreA')) return;
-    var state = loadJSON('ta_bm', bmDefault());
+    function bmKey() { return 'ta_bm_' + (state && state.mode ? state.mode : 'singles'); }
+    var state = loadJSON('ta_bm_singles', null);
+    if (!state || !state.score) state = loadJSON('ta_bm', bmDefault());
     if (!state.score) state = bmDefault();
+    state.mode = state.mode || 'singles';
     state.history = state.history || [];
     var prevScore = state.score.slice();
 
-    function save() { saveJSON('ta_bm', state); }
+    function save() { saveJSON(bmKey(), state); }
     function snap() {
       return { score: state.score.slice(), games: state.games.slice(), server: state.server, gameNo: state.gameNo, over: state.over, winner: state.winner, finished: state.finished };
     }
@@ -291,8 +379,30 @@
       }
     }
 
+    /* A point plays the racket-and-cock scene first, then the score changes. */
+    var bmAnimating = false;
+    function playBmAnim(done) {
+      var stage = document.getElementById('bmAnimStage');
+      if (!stage) { done(); return; }
+      stage.classList.remove('anim-point');
+      void stage.offsetWidth;
+      stage.classList.add('anim-point');
+      setTimeout(function () {
+        stage.classList.remove('anim-point');
+        done();
+      }, 1200);
+    }
+
     function point(i) {
-      if (state.over) return;
+      if (state.over || bmAnimating) return;
+      bmAnimating = true;
+      playBmAnim(function () {
+        bmAnimating = false;
+        applyPoint(i);
+      });
+    }
+
+    function applyPoint(i) {
       state.history.push(snap());
       if (state.history.length > 60) state.history.shift();
       state.score[i]++;
@@ -310,16 +420,6 @@
       render();
     }
 
-    function restartMatch() {
-      var mode = state.mode;
-      state = bmDefault();
-      state.mode = mode;
-      prevScore = [0, 0];
-      clearWinner(BM_MATCH_ID);
-      save();
-      render();
-    }
-
     function finishMatch() {
       if (state.over) return;
       state.finished = true;
@@ -331,8 +431,15 @@
 
     function setMode(mode) {
       if (state.mode === mode) return;
-      state.mode = mode;
-      restartMatch();
+      save();
+      var next = loadJSON('ta_bm_' + mode, null);
+      if (!next || !next.score) next = bmDefault();
+      next.mode = mode;
+      next.history = next.history || [];
+      state = next;
+      prevScore = state.score.slice();
+      save();
+      render();
       document.getElementById('bmSinglesBtn').classList.toggle('on', mode === 'singles');
       document.getElementById('bmDoublesBtn').classList.toggle('on', mode === 'doubles');
       document.getElementById('bmModeLabel').textContent = mode === 'singles' ? 'Singles' : 'Doubles';
@@ -368,8 +475,27 @@
       var rcx = rBox.x + rBox.w / 2, rcy = rBox.y + rBox.h / 2;
       arrow.setAttribute('x1', scx); arrow.setAttribute('y1', scy);
       arrow.setAttribute('x2', rcx); arrow.setAttribute('y2', rcy);
-      sLabel.setAttribute('x', scx); sLabel.setAttribute('y', scy + 5);
-      rLabel.setAttribute('x', rcx); rLabel.setAttribute('y', rcy + 5);
+      /* Labels sit at the top of the box, the stickman stands in the middle. */
+      sLabel.setAttribute('x', scx); sLabel.setAttribute('y', sBox.y + 18);
+      rLabel.setAttribute('x', rcx); rLabel.setAttribute('y', rBox.y + 18);
+      /* Stickman server stands in the box the server must serve from. It
+         slides to the new box when the score or the server changes. In
+         doubles the partner stands in the other box on the same side. */
+      var stick = document.getElementById('bmStickServer');
+      if (stick) {
+        stick.style.display = '';
+        stick.style.transform = 'translate(' + scx + 'px,' + scy + 'px)';
+      }
+      var partner = document.getElementById('bmStickPartner');
+      if (partner) {
+        if (state.mode === 'doubles') {
+          var pBox = boxFor(serverSide, side === 'right' ? 'left' : 'right');
+          partner.style.display = '';
+          partner.style.transform = 'translate(' + (pBox.x + pBox.w / 2) + 'px,' + (pBox.y + pBox.h / 2) + 'px)';
+        } else {
+          partner.style.display = 'none';
+        }
+      }
     }
 
     function render() {
@@ -441,6 +567,7 @@
     });
     document.getElementById('bmSinglesBtn').addEventListener('click', function () { setMode('singles'); });
     document.getElementById('bmDoublesBtn').addEventListener('click', function () { setMode('doubles'); });
+    setupMatchCode('badminton', 'bm');
     render();
   }
   bmInit();
@@ -493,8 +620,37 @@
       return state.balls >= state.maxBalls || state.wkts >= 10 || state.runs >= state.target;
     }
 
+    /* A ball plays its scene first, bat hits ball, ball reaches the
+       scoreboard (or the stumps), then the score changes. */
+    var crAnimating = false;
+    function playCricketAnim(kind, runs, done) {
+      var stage = document.getElementById('crAnimStage');
+      if (!stage) { done(); return; }
+      var boardText = document.getElementById('crBoardText');
+      if (boardText) boardText.textContent = kind === 'wicket' ? 'W' : '+' + runs;
+      var cls = 'anim-' + kind;
+      stage.classList.remove('anim-four', 'anim-six', 'anim-runs', 'anim-wicket');
+      void stage.offsetWidth;
+      stage.classList.add(cls);
+      var dur = kind === 'six' ? 1400 : kind === 'wicket' ? 1250 : kind === 'four' ? 1250 : 1150;
+      setTimeout(function () {
+        stage.classList.remove(cls);
+        done();
+      }, dur);
+    }
+
     function ball(runs, isWicket) {
-      if (inningsOver() || state.finished) return;
+      if (inningsOver() || state.finished || crAnimating) return;
+      var kind = isWicket ? 'wicket' : runs === 4 ? 'four' : runs === 6 ? 'six' : runs > 0 ? 'runs' : 'dot';
+      if (kind === 'dot') { applyBall(runs, isWicket); return; }
+      crAnimating = true;
+      playCricketAnim(kind, runs, function () {
+        crAnimating = false;
+        applyBall(runs, isWicket);
+      });
+    }
+
+    function applyBall(runs, isWicket) {
       state.history.push(clone(state));
       if (state.history.length > 120) state.history.shift();
       var s = striker();
@@ -640,6 +796,7 @@
       if (msg) { msg.classList.remove('hidden'); msg.textContent = 'Winner announced: ' + winner + '.'; }
       render();
     });
+    setupMatchCode('cricket', 'cr');
     render();
   }
   cricketInit();
@@ -767,6 +924,7 @@
       if (msg) { msg.classList.remove('hidden'); msg.textContent = 'Winner announced: ' + winner + '.'; }
       render();
     });
+    setupMatchCode('football', 'fb');
     render();
   }
   footballInit();
@@ -843,7 +1001,8 @@
         time: fixtureTime(index, mins),
         venue: venue,
         court: court || '',
-        status: 'upcoming'
+        status: 'upcoming',
+        code: String(1000 + Math.floor(Math.random() * 9000))
       });
     }
     if (t.sport === 'badminton') {
@@ -1087,20 +1246,23 @@
     if (!mine.length) return;
     box.innerHTML = '';
     var livePage = sport + '-live.html';
+    var changed = false;
     mine.forEach(function (f) {
-      var div = document.createElement('div');
-      div.className = 'row-item';
+      if (!f.code) { f.code = String(1000 + Math.floor(Math.random() * 9000)); changed = true; }
+      var a = document.createElement('a');
+      a.className = 'row-item row-link';
+      a.href = livePage;
+      a.setAttribute('data-sport', sport);
+      a.setAttribute('data-match-id', f.id);
+      a.setAttribute('data-match-code', f.code);
       var when = (f.date || 'Date to be announced') + (f.time ? ', ' + f.time : '');
       var place = (f.court ? f.court + ', ' : '') + (f.venue || '');
-      div.innerHTML = '<div class="row-time">' + esc(f.status.toUpperCase()) + '</div>' +
-        '<div class="row-main"><h3>' + esc(f.label || '') + '</h3><p>' + esc(f.title) + '</p><p>' + esc(when) + ', ' + esc(place) + '</p><p>' + esc(f.tournament) + '</p></div>' +
+      a.innerHTML = '<div class="row-time">' + esc(f.status.toUpperCase()) + '</div>' +
+        '<div class="row-main"><h3>' + esc(f.label || '') + '</h3><p>' + esc(f.title) + '</p><p>' + esc(when) + ', ' + esc(place) + '</p><p>' + esc(f.tournament) + '</p><p>Match code: <strong>' + esc(f.code) + '</strong>. The scorer enters this code on the live match page to score.</p></div>' +
         '<span class="tag">' + esc(f.status.toUpperCase()) + '</span>';
-      box.appendChild(div);
-      var row = document.createElement('div');
-      row.className = 'btn-row';
-      row.innerHTML = '<a class="btn btn-secondary" href="' + livePage + '">View live match</a>';
-      box.appendChild(row);
+      box.appendChild(a);
     });
+    if (changed) saveJSON('ta_fixtures', all);
   }
   fixturesInit();
 

@@ -24,9 +24,9 @@
   </div>
   <nav class="site-nav" id="siteNav">
     <a href="index.html">Home</a>
-    <a href="badminton-live.html">Badminton</a>
-    <a href="cricket-live.html">Cricket</a>
-    <a href="football-live.html">Football</a>
+    <a href="badminton-fixtures.html">Badminton</a>
+    <a href="cricket-fixtures.html">Cricket</a>
+    <a href="football-fixtures.html">Football</a>
     <details class="nav-drop" open>
       <summary>Fixtures</summary>
       <div class="nav-drop-menu">
@@ -58,17 +58,19 @@
     <p class="lead">Vizag T20 Cup, 8 teams, 10 overs.</p>
   </div>
 
-  <div class="row-item">
+  <a class="row-item row-link" href="cricket-live.html" data-sport="cricket" data-match-id="cr-example" data-match-code="2233">
     <div class="row-time">LIVE</div>
     <div class="row-main">
       <h3>AU Warriors vs Beach Road Blasters</h3>
       <p>Vizag T20 Cup, AU Ground</p>
+      <p>Match code: <strong>2233</strong>. The scorer enters this code on the live match page to score.</p>
     </div>
     <span class="tag tag-live">LIVE</span>
-  </div>
+  </a>
   <div class="btn-row">
     <a class="btn" href="cricket-live.html">View scorecard</a>
   </div>
+  <p class="meta">Tap a fixture to open its live match. Scoring needs the match code shown on the fixture.</p>
   <p class="meta hidden" id="fixtureWinner"></p>
 
   <div id="generatedFixtures"></div>

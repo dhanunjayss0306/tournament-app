@@ -436,24 +436,151 @@ footer {
 
 /* Do4You brand: provided logo files, used exactly as supplied. */
 .brand { display: inline-flex; align-items: center; gap: 8px; }
-.brand-mark { width: 28px; height: 28px; display: block; }
-.logo-lockup { width: 180px; max-width: 60%; height: auto; display: block; margin: 0 0 14px 0; }
+.brand-mark { height: 44px; width: auto; display: block; background: var(--white); border: 1px solid var(--line); border-radius: 10px; padding: 3px; }
+.logo-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin: 0 0 16px 0;
+  text-align: center;
+}
+.logo-card .logo-lockup { margin: 0 auto; }
+.logo-lockup { width: 240px; max-width: 80%; height: auto; display: block; margin: 0 0 14px 0; }
 
-/* Score animations: a changed number pops and settles, like a live-score update. */
+/* Fixture rows that open a live match. */
+a.row-item { color: var(--ink); }
+a.row-item:hover { border-color: var(--blue); text-decoration: none; }
+a.row-item .row-main h3 { color: var(--ink); }
+
+/* Match access code box on live pages. */
+.code-box { border: 2px solid var(--blue); }
+.code-box input { margin-bottom: 10px; }
+.code-shown { font-size: 15px; }
+.code-shown strong { font-size: 18px; letter-spacing: 0.08em; }
+.code-msg { font-weight: 700; font-size: 15px; margin: 8px 0 0 0; }
+.code-msg.wrong { color: var(--red); }
+.code-msg.ok { color: var(--green); }
+
+/* Score animations: a changed number pops big and flashes, so the change cannot be missed. */
 @keyframes score-pop {
   0% { transform: scale(1); }
-  35% { transform: scale(1.35); }
+  30% { transform: scale(1.45); }
   100% { transform: scale(1); }
 }
-.score-pop { display: inline-block; animation: score-pop 0.35s ease-out; }
+@keyframes score-flash {
+  0% { background-color: #DCEBFF; }
+  100% { background-color: transparent; }
+}
+.score-pop { display: inline-block; border-radius: 10px; animation: score-pop 0.5s ease-out, score-flash 0.5s ease-out; }
 @keyframes chip-in {
-  0% { transform: scale(0.4); opacity: 0; }
-  60% { transform: scale(1.15); opacity: 1; }
+  0% { transform: scale(0.3); opacity: 0; }
+  60% { transform: scale(1.2); opacity: 1; }
   100% { transform: scale(1); opacity: 1; }
 }
-.chip-in { animation: chip-in 0.35s ease-out; }
+.chip-in { animation: chip-in 0.5s ease-out; }
 @keyframes slide-in {
-  0% { transform: translateY(-6px); opacity: 0; }
+  0% { transform: translateY(-8px); opacity: 0; }
   100% { transform: translateY(0); opacity: 1; }
 }
-.slide-in { animation: slide-in 0.35s ease-out; }
+.slide-in { animation: slide-in 0.5s ease-out; }
+
+/* Rich score scenes: a small animated strip. A bat or racket swings, the
+   ball or cock flies to the scoreboard, then the score changes. Inline SVG
+   plus CSS keyframes only, no images. */
+.anim-stage {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--soft);
+  margin: 0 0 12px 0;
+  overflow: hidden;
+}
+.anim-svg { width: 100%; height: auto; display: block; }
+#crBoardText, #bmBoardText { opacity: 0; transform-box: fill-box; transform-origin: center; }
+
+/* Cricket: bat swing, then the ball flies to the scoreboard. */
+#crBat { transform-box: fill-box; transform-origin: 50% 92%; }
+#crBall { transform-box: fill-box; }
+#crStumps { transform-box: fill-box; transform-origin: 50% 100%; }
+#crBails { transform-box: fill-box; transform-origin: center; }
+@keyframes cr-bat-swing {
+  0% { transform: rotate(0deg); }
+  30% { transform: rotate(-28deg); }
+  60% { transform: rotate(40deg); }
+  100% { transform: rotate(0deg); }
+}
+@keyframes cr-ball-four {
+  0% { transform: translate(0, 0); }
+  30% { transform: translate(85px, -40px); }
+  50% { transform: translate(150px, 0); }
+  70% { transform: translate(205px, -24px); }
+  88% { transform: translate(248px, 0); }
+  100% { transform: translate(244px, -48px); }
+}
+@keyframes cr-ball-six {
+  0% { transform: translate(0, 0); }
+  35% { transform: translate(95px, -66px); }
+  60% { transform: translate(165px, -58px); }
+  85% { transform: translate(225px, -44px); }
+  100% { transform: translate(244px, -48px); }
+}
+@keyframes cr-ball-runs {
+  0% { transform: translate(0, 0); }
+  35% { transform: translate(90px, -26px); }
+  55% { transform: translate(150px, 0); }
+  80% { transform: translate(205px, -18px); }
+  100% { transform: translate(244px, -48px); }
+}
+@keyframes cr-ball-bowl {
+  0% { transform: translate(0, 0); }
+  45% { transform: translate(120px, -6px); }
+  75% { transform: translate(190px, 0); }
+  100% { transform: translate(240px, 0); }
+}
+@keyframes cr-stumps-fall {
+  0% { transform: rotate(0deg) translateY(0); opacity: 1; }
+  100% { transform: rotate(68deg) translateY(12px); opacity: 0.5; }
+}
+@keyframes cr-bail-fly {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  40% { transform: translate(-10px, -22px) rotate(-45deg); opacity: 1; }
+  100% { transform: translate(-16px, 8px) rotate(-90deg); opacity: 0.6; }
+}
+@keyframes board-pop {
+  0% { opacity: 0; transform: scale(0.5); }
+  60% { opacity: 1; transform: scale(1.18); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.anim-four #crBat, .anim-six #crBat, .anim-runs #crBat { animation: cr-bat-swing 0.5s ease-in-out; }
+.anim-four #crBall { animation: cr-ball-four 0.9s ease-in 0.15s both; }
+.anim-six #crBall { animation: cr-ball-six 1.05s ease-in 0.15s both; }
+.anim-runs #crBall { animation: cr-ball-runs 0.8s ease-in 0.15s both; }
+.anim-wicket #crBall { animation: cr-ball-bowl 0.7s ease-in both; }
+.anim-wicket #crStumps { animation: cr-stumps-fall 0.55s ease-in 0.6s both; }
+.anim-wicket #crBails { animation: cr-bail-fly 0.6s ease-in 0.55s both; }
+.anim-four #crBoardText { animation: board-pop 0.35s ease-out 0.85s both; }
+.anim-six #crBoardText { animation: board-pop 0.35s ease-out 1s both; }
+.anim-runs #crBoardText { animation: board-pop 0.35s ease-out 0.75s both; }
+.anim-wicket #crBoardText { animation: board-pop 0.35s ease-out 0.65s both; }
+
+/* Badminton: racket swing, then the cock flies to the scoreboard. */
+#bmRacket { transform-box: fill-box; transform-origin: 50% 95%; }
+#bmCock { transform-box: fill-box; transform-origin: center; }
+@keyframes bm-racket-swing {
+  0% { transform: rotate(0deg); }
+  30% { transform: rotate(-26deg); }
+  60% { transform: rotate(38deg); }
+  100% { transform: rotate(0deg); }
+}
+@keyframes bm-cock-fly {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  40% { transform: translate(110px, -56px) rotate(18deg); }
+  70% { transform: translate(185px, -26px) rotate(30deg); }
+  100% { transform: translate(236px, -46px) rotate(42deg); }
+}
+.anim-point #bmRacket { animation: bm-racket-swing 0.5s ease-in-out; }
+.anim-point #bmCock { animation: bm-cock-fly 0.85s ease-in 0.15s both; }
+.anim-point #bmBoardText { animation: board-pop 0.35s ease-out 0.8s both; }
+
+/* Stickman server on the badminton court. Slides to the new box. */
+.court-stick { transition: transform 0.45s ease; }

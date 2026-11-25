@@ -24,9 +24,9 @@
   </div>
   <nav class="site-nav" id="siteNav">
     <a href="index.html">Home</a>
-    <a href="badminton-live.html">Badminton</a>
-    <a href="cricket-live.html" class="active">Cricket</a>
-    <a href="football-live.html">Football</a>
+    <a href="badminton-fixtures.html">Badminton</a>
+    <a href="cricket-fixtures.html" class="active">Cricket</a>
+    <a href="football-fixtures.html">Football</a>
     <details class="nav-drop">
       <summary>Fixtures</summary>
       <div class="nav-drop-menu">
@@ -62,6 +62,27 @@
     <p class="meta">Batting, Beach Road Blasters</p>
     <p><span class="big-score" id="crScore" style="text-align:left">86/3</span> <span class="meta" id="crOvers">(7.2 ov)</span></p>
     <p class="meta"><span id="crCrr">CRR 11.7</span> &middot; <span id="crNeed">Beach Road Blasters need 44 off 16 balls. Target 130.</span></p>
+    <div class="anim-stage" id="crAnimStage" aria-hidden="true">
+      <svg class="anim-svg" viewBox="0 0 360 96" role="img" aria-label="Cricket shot animation">
+        <line x1="8" y1="84" x2="352" y2="84" stroke="#1D1D1F" stroke-width="2"></line>
+        <g id="crBat">
+          <rect x="36" y="34" width="6" height="26" rx="3" fill="#1D1D1F"></rect>
+          <rect x="28" y="56" width="22" height="28" rx="3" fill="#B07A45"></rect>
+        </g>
+        <circle id="crBall" cx="66" cy="78" r="6" fill="#D92D20"></circle>
+        <g id="crStumps" stroke="#F5C518" stroke-width="5" stroke-linecap="round">
+          <line x1="298" y1="48" x2="298" y2="84"></line>
+          <line x1="308" y1="48" x2="308" y2="84"></line>
+          <line x1="318" y1="48" x2="318" y2="84"></line>
+        </g>
+        <g id="crBails" stroke="#F5C518" stroke-width="3" stroke-linecap="round">
+          <line x1="297" y1="44" x2="309" y2="44"></line>
+          <line x1="307" y1="44" x2="319" y2="44"></line>
+        </g>
+        <rect x="268" y="8" width="84" height="30" rx="6" fill="#0071E3"></rect>
+        <text id="crBoardText" x="310" y="29" fill="#FFFFFF" font-size="16" font-weight="800" text-anchor="middle">+4</text>
+      </svg>
+    </div>
     <p class="meta">Ball by ball</p>
     <div class="chips" id="crChips"></div>
   </div>
@@ -84,6 +105,16 @@
   </div>
 
   <div class="success-box hidden" id="crWinnerBanner"></div>
+
+  <div class="card code-box scorer-only" id="crCodeBox">
+    <h3>Score this match</h3>
+    <p class="meta code-shown">Match code: <strong id="crCodeShown">2233</strong>. The code is also on the fixtures page. Enter it below to unlock scoring.</p>
+    <label for="crCodeInput">Match code</label>
+    <input type="text" id="crCodeInput" inputmode="numeric" placeholder="Enter the 4-digit code" autocomplete="off">
+    <div class="btn-row"><button type="button" class="btn" id="crCodeBtn">Unlock scoring</button></div>
+    <p class="code-msg hidden" id="crCodeMsg"></p>
+  </div>
+  <p class="note hidden" id="crCodeUnlocked">Scoring unlocked for this match.</p>
 
   <div class="card scorer-only">
     <h3>Scorer controls, tap each ball</h3>
